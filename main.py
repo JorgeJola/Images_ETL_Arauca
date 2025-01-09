@@ -74,13 +74,15 @@ def process_raster(input_path, municipality):
     return output_path
 
 def segment_raster(input_path, municipality):
-    # Abrir el raster con rasterio
     with rasterio.open(input_path) as src:
         nbands = src.count
-        # Leer datos de bandas y apilar
+        width = src.width
+        height = src.height
         band_data = []
+
+        # Leer las bandas en bloques y apilar
         for i in range(1, nbands + 1):
-            band = src.read(i)
+            band = src.read(i, window=rasterio.windows.Window(0, 0, width, height))
             band_data.append(band)
         band_data = np.dstack(band_data)
 
@@ -90,14 +92,13 @@ def segment_raster(input_path, municipality):
 
         # Guardar el resultado de la segmentación
         output_path = os.path.join(RESULT_FOLDER, f"Segmented_Raster_{municipality}.tif")
-        
-        # Crear un nuevo archivo con rasterio para almacenar el resultado
+
         with rasterio.open(input_path) as src:
-            profile = src.profile  # Obtener metadatos del archivo original
-            profile.update(dtype=rasterio.float32, count=1)  # Asegurar que el tipo sea Float32 y una sola banda
+            profile = src.profile
+            profile.update(dtype=rasterio.float32, count=1)
 
             with rasterio.open(output_path, 'w', **profile) as dst:
-                dst.write(segments.astype(rasterio.float32), 1)  # Escribir la segmentación
+                dst.write(segments.astype(rasterio.float32), 1)
 
     return output_path
 municipality_shapefiles = {
