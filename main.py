@@ -5,7 +5,6 @@ import rasterio
 import os
 import pandas as pd
 import numpy as np
-from osgeo import gdal
 from skimage import exposure
 from rasterio.features import shapes
 import shapely
@@ -75,30 +74,30 @@ def process_raster(input_path, municipality):
     return output_path
 
 def segment_raster(input_path, municipality):
-    # Abrir el raster con GDAL
-    driver_tiff = gdal.GetDriverByName('GTiff')
-    naip_ds = gdal.Open(input_path)
-    nbands = naip_ds.RasterCount
+    # Abrir el raster con rasterio
+    with rasterio.open(input_path) as src:
+        nbands = src.count
+        # Leer datos de bandas y apilar
+        band_data = []
+        for i in range(1, nbands + 1):
+            band = src.read(i)
+            band_data.append(band)
+        band_data = np.dstack(band_data)
 
-    # Leer datos de bandas y apilar
-    band_data = []
-    for i in range(1, nbands + 1):
-        band = naip_ds.GetRasterBand(i).ReadAsArray()
-        band_data.append(band)
-    band_data = np.dstack(band_data)
+        # Ajustar intensidades y realizar segmentación
+        img = exposure.rescale_intensity(band_data)
+        segments = slic(img, n_segments=10, compactness=0.03)
 
-    # Ajustar intensidades y realizar segmentación
-    img = exposure.rescale_intensity(band_data)
-    segments = slic(img, n_segments=10, compactness=0.03)
+        # Guardar el resultado de la segmentación
+        output_path = os.path.join(RESULT_FOLDER, f"Segmented_Raster_{municipality}.tif")
+        
+        # Crear un nuevo archivo con rasterio para almacenar el resultado
+        with rasterio.open(input_path) as src:
+            profile = src.profile  # Obtener metadatos del archivo original
+            profile.update(dtype=rasterio.float32, count=1)  # Asegurar que el tipo sea Float32 y una sola banda
 
-    # Guardar el resultado de la segmentación
-    output_path = os.path.join(RESULT_FOLDER, f"Segmented_Raster_{municipality}.tif")
-    segments_ds = driver_tiff.Create(output_path, naip_ds.RasterXSize, naip_ds.RasterYSize,
-                                     1, gdal.GDT_Float32)
-    segments_ds.SetGeoTransform(naip_ds.GetGeoTransform())
-    segments_ds.SetProjection(naip_ds.GetProjectionRef())
-    segments_ds.GetRasterBand(1).WriteArray(segments)
-    segments_ds = None  # Cerrar archivo
+            with rasterio.open(output_path, 'w', **profile) as dst:
+                dst.write(segments.astype(rasterio.float32), 1)  # Escribir la segmentación
 
     return output_path
 municipality_shapefiles = {

@@ -7,6 +7,5 @@ shapely
 scikit-learn
 rasterio
 numpy
-gdal==3.3.2
 scikit-image
 joblib
