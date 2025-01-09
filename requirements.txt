@@ -1,0 +1,12 @@
+flask
+gunicorn
+geopandas
+folium
+pandas
+shapely
+scikit-learn
+rasterio
+numpy
+gdal==3.6.2
+scikit-image
+joblib
