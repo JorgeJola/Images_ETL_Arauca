@@ -130,7 +130,7 @@ def generate_shapefile(segmented_raster_path, municipality):
     gdf.set_crs(segmented_raster.crs, allow_override=True, inplace=True)
 
     # Leer el archivo de área de interés (AOI) para el municipio
-    aoi = gpd.read_file(f'Image_Classification_Prueba/static/aois/{municipality_shapefiles.get(municipality)}')
+    aoi = gpd.read_file(f'Image_Classification_Arauca/static/aois/{municipality_shapefiles.get(municipality)}')
 
     # Guardar el GeoDataFrame como shapefile
     polygons = gpd.clip(gdf, aoi)
@@ -151,7 +151,7 @@ municipality_dem = {
     'Tame': 'Tame_elevation_slope.tif'
 }
 def extract_bands(polygons_path, input_path,municipality):
-    dem_raster=rasterio.open(f'Image_Classification_Prueba/static/aois/{municipality_dem.get(municipality)}')
+    dem_raster=rasterio.open(f'Image_Classification_Arauca/static/aois/{municipality_dem.get(municipality)}')
     newbands_raster=rasterio.open(input_path)
     polygons=gpd.read_file(polygons_path)
 
@@ -228,7 +228,7 @@ def extract_bands(polygons_path, input_path,municipality):
     return output_path
 
 def apply_model(polygons_path,polygons_band,municipality):
-    model=joblib.load("Image_Classification_Prueba/static/models/model.joblib")
+    model=joblib.load("Image_Classification_Arauca/static/models/model.joblib")
     polygons=gpd.read_file(polygons_path)
     gdf_X=gpd.read_file(polygons_band)
     gdf_final=gpd.GeoDataFrame()
@@ -298,7 +298,7 @@ def view_shapefile(polygons_classif):
     m.get_root().html.add_child(folium.Element(legend_html))
 
     # Guardar el mapa en un archivo HTML
-    map_html_path = "Image_Classification_Prueba/static/new_map.html"
+    map_html_path = "Image_Classification_Arauca/static/new_map.html"
     m.save(map_html_path)
     
 @main.route('/download/<filename>')
