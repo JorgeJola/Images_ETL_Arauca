@@ -89,7 +89,7 @@ def segment_raster(input_path, municipality):
 
     # Ajustar intensidades y realizar segmentación
     img = exposure.rescale_intensity(band_data)
-    segments = slic(img, n_segments=2000, compactness=0.03)
+    segments = slic(img, n_segments=10, compactness=0.03)
 
     # Guardar el resultado de la segmentación
     output_path = os.path.join(RESULT_FOLDER, f"Segmented_Raster_{municipality}.tif")
