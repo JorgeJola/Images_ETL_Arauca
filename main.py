@@ -49,7 +49,7 @@ def process_raster(input_path, municipality):
 
     return output_path
 
-
+@main.route('/download/<filename>')
 def download_file(filename):
     file_path = os.path.join(RESULT_FOLDER, filename)
 
