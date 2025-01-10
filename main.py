@@ -86,12 +86,10 @@ def process_and_segment_raster(input_path, municipality):
         img = exposure.rescale_intensity(band_data)
         segments = slic(img, n_segments=10, compactness=0.03)
 
-        # Guardar el resultado de la segmentación
-        profile = src.profile
-        profile.update(dtype=rasterio.float32, count=1)
-
-        with rasterio.open(output_path, 'w', **profile) as dst:
-            dst.write(segments.astype(rasterio.float32), 1)
+        # Guardar el raster segmentado
+        with rasterio.open(output_path, 'w', **src.meta) as dst:
+            for i in range(1, nbands + 1):
+                dst.write(segments.astype(rasterio.uint16), indexes=i)
 
     return output_path
 
