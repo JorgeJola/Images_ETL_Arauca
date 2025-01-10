@@ -42,12 +42,12 @@ def image_classification():
             raster_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(raster_path)
             processed_raster_path = process_raster(raster_path, municipality)
-            segmented_raster_path = segment_raster(processed_raster_path, municipality)
-            polygons_path = generate_shapefile(segmented_raster_path, municipality)
-            polygons_bands = extract_bands(polygons_path, processed_raster_path, municipality)
-            polygons_classif = apply_model(polygons_path, polygons_bands, municipality)
-            view_shapefile(polygons_classif)
-            return redirect(url_for('main.download_file', filename=os.path.basename(polygons_classif)))
+            #segmented_raster_path = segment_raster(processed_raster_path, municipality)
+            #polygons_path = generate_shapefile(segmented_raster_path, municipality)
+            #polygons_bands = extract_bands(polygons_path, processed_raster_path, municipality)
+            #polygons_classif = apply_model(polygons_path, polygons_bands, municipality)
+            #view_shapefile(polygons_classif)
+            return redirect(url_for('main.download_file', filename=os.path.basename(processed_raster_path)))
         
     return render_template('image_classification.html', success=False)
 
