@@ -4,37 +4,105 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='extended_beauty.css') }}" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
-  .input-group {
-    position: fixed;
-    top: 50px;
-    right: 20px;
-    width: 20%;
+  /* General body styling */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+  }
+
+  /* Container styling for a full-screen layout */
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 500px;
     background: #f4f4f4;
-    padding: 15px;
+    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
-  #raster-container {
-    margin-right: 25%;
-    padding: 20px;
+
+  label {
+    margin-bottom: 10px;
+    font-weight: bold;
   }
-  #mapid {
-    height: 500px;
+
+  input[type="file"],
+  select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  button {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: background-color 0.3s;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  /* Success message */
+  .success-message {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: green;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .container {
+      padding: 10px;
+    }
+    form {
+      width: 90%;
+    }
   }
 </style>
 {% endblock %}
+
 {% block content %}
 {{ super() }}
 <div class="container">
     <h1>Raster Classification</h1>
     {% if success %}
-        <p>Classification completed successfully!</p>
-        <a href="{{ url_for('download_file', filename=shapefile) }}">Download Classified Shapefile</a>
+        <div class="success-message">
+            <p>Classification completed successfully!</p>
+            <a href="{{ url_for('download_file', filename=shapefile) }}" style="color: #007bff;">Download Classified Shapefile</a>
+        </div>
     {% else %}
     <form action="{{ url_for('main.image_classification') }}" method="post" enctype="multipart/form-data">
         <label for="raster">Upload Raster File:</label>
         <input type="file" name="raster" id="raster" required>
-        <br><br>
+        
         <label for="municipality">Select Municipality:</label>
         <select id="municipality" name="municipality">
             <option value="Arauca">Arauca</option>
@@ -45,13 +113,9 @@
             <option value="Saravena">Saravena</option>
             <option value="Tame">Tame</option>
         </select>
-        <br><br>
+        
         <button type="submit">Process</button>
     </form>
     {% endif %}
-    
-    <h2>Map of Raster Classification</h2>
-    <!-- Embed the generated map -->
-    <iframe src="{{ url_for('static', filename='new_map.html') }}" width="100%" height="500px"></iframe>
 </div>
 {% endblock %}

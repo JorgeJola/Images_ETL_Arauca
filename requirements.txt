@@ -1,11 +1,3 @@
 flask
 gunicorn
-geopandas
-folium
-pandas
-shapely
-scikit-learn
 rasterio
-numpy
-scikit-image
-joblib
