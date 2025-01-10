@@ -9,3 +9,4 @@ rasterio
 numpy
 scikit-image
 joblib
+psutil
