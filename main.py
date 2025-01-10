@@ -41,34 +41,36 @@ def image_classification():
             # Guardar archivo subido
             raster_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(raster_path)
-            processed_raster_path = process_raster(raster_path, municipality)
-            segmented_raster_path = segment_raster(processed_raster_path, municipality)
+            process_and_segment_raster_path = process_and_segment_raster(raster_path, municipality)
             #polygons_path = generate_shapefile(segmented_raster_path, municipality)
             #polygons_bands = extract_bands(polygons_path, processed_raster_path, municipality)
             #polygons_classif = apply_model(polygons_path, polygons_bands, municipality)
             #view_shapefile(polygons_classif)
-            return redirect(url_for('main.download_file', filename=os.path.basename(segmented_raster_path)))
+            return redirect(url_for('main.download_file', filename=os.path.basename(process_and_segment_raster_path)))
         
     return render_template('image_classification.html', success=False)
 
 
-def process_raster(input_path, municipality):
-    output_path = os.path.join(RESULT_FOLDER, f"Cleaned_Raster_{municipality}.tif")
+def process_and_segment_raster(input_path, municipality):
 
+    # Ruta para el raster limpio
+    cleaned_output_path = os.path.join(RESULT_FOLDER, f"Cleaned_Raster_{municipality}.tif")
+
+    # Proceso de limpieza del raster
     with rasterio.open(input_path) as multiband_raster:
-        # Copiar metadatos y ajustar para el archivo de salida
         new_metadata = multiband_raster.meta
         new_metadata.update(count=6)
 
-        with rasterio.open(output_path, 'w', **new_metadata) as dst:
+        with rasterio.open(cleaned_output_path, 'w', **new_metadata) as dst:
             for i in range(1, 7):  # Procesar bandas 1 a 6
-                band = multiband_raster.read(i)  # Leer banda individualmente
-                dst.write(band, indexes=i)  # Escribir banda individualmente
+                band = multiband_raster.read(i)
+                dst.write(band, indexes=i)
 
-    return output_path
+    # Ruta para el raster segmentado
+    output_path = os.path.join(RESULT_FOLDER, f"Segmented_Raster_{municipality}.tif")
 
-def segment_raster(input_path, municipality):
-    with rasterio.open(input_path) as src:
+    # Proceso de segmentación del raster limpio
+    with rasterio.open(cleaned_output_path) as src:
         nbands = src.count
         width = src.width
         height = src.height
@@ -85,16 +87,14 @@ def segment_raster(input_path, municipality):
         segments = slic(img, n_segments=10, compactness=0.03)
 
         # Guardar el resultado de la segmentación
-        output_path = os.path.join(RESULT_FOLDER, f"Segmented_Raster_{municipality}.tif")
+        profile = src.profile
+        profile.update(dtype=rasterio.float32, count=1)
 
-        with rasterio.open(input_path) as src:
-            profile = src.profile
-            profile.update(dtype=rasterio.float32, count=1)
-
-            with rasterio.open(output_path, 'w', **profile) as dst:
-                dst.write(segments.astype(rasterio.float32), 1)
+        with rasterio.open(output_path, 'w', **profile) as dst:
+            dst.write(segments.astype(rasterio.float32), 1)
 
     return output_path
+
 municipality_shapefiles = {
     'Arauca': 'AraucaLC.shp',
     'Arauquita': 'ArauquitaLC.shp',
