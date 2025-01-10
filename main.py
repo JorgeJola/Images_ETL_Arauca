@@ -15,6 +15,7 @@ from rasterio.mask import mask
 import joblib
 import zipfile
 import folium
+import psutil
 
 main = Blueprint('main', __name__)
 
@@ -42,14 +43,19 @@ def image_classification():
             raster_path = os.path.join(UPLOAD_FOLDER, file.filename)
             file.save(raster_path)
             processed_raster_path = process_raster(raster_path, municipality)
-            #segmented_raster_path = segment_raster(processed_raster_path, municipality)
+            segmented_raster_path = segment_raster(processed_raster_path, municipality)
             #polygons_path = generate_shapefile(segmented_raster_path, municipality)
             #polygons_bands = extract_bands(polygons_path, processed_raster_path, municipality)
             #polygons_classif = apply_model(polygons_path, polygons_bands, municipality)
             #view_shapefile(polygons_classif)
-            return redirect(url_for('main.download_file', filename=os.path.basename(processed_raster_path)))
+            return redirect(url_for('main.download_file', filename=os.path.basename(segmented_raster_path)))
         
     return render_template('image_classification.html', success=False)
+
+def monitor_memory():
+    process = psutil.Process()
+    mem_info = process.memory_info()
+    print(f"Memory usage: {mem_info.rss / 1e6} MB")
 
 def process_raster(input_path, municipality):
     output_path = os.path.join(RESULT_FOLDER, f"Cleaned_Raster_{municipality}.tif")
@@ -63,6 +69,7 @@ def process_raster(input_path, municipality):
             for i in range(1, 7):  # Procesar bandas 1 a 6
                 band = multiband_raster.read(i)  # Leer banda individualmente
                 dst.write(band, indexes=i)  # Escribir banda individualmente
+                monitor_memory()
 
     return output_path
 
