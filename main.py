@@ -52,24 +52,17 @@ def image_classification():
     return render_template('image_classification.html', success=False)
 
 def process_raster(input_path, municipality):
-    with rasterio.open(input_path) as multiband_raster:
-        selected_bands = np.stack([
-            multiband_raster.read(1),
-            multiband_raster.read(2),
-            multiband_raster.read(3),
-            multiband_raster.read(4),
-            multiband_raster.read(5),
-            multiband_raster.read(6)
-        ])
+    output_path = os.path.join(RESULT_FOLDER, f"Cleaned_Raster_{municipality}.tif")
 
+    with rasterio.open(input_path) as multiband_raster:
+        # Copiar metadatos y ajustar para el archivo de salida
         new_metadata = multiband_raster.meta
         new_metadata.update(count=6)
 
-        output_path = os.path.join(RESULT_FOLDER, f"Cleaned_Raster_{municipality}.tif")
-
         with rasterio.open(output_path, 'w', **new_metadata) as dst:
-            for i in range(6):
-                dst.write(selected_bands[i, :, :], indexes=i + 1)
+            for i in range(1, 7):  # Procesar bandas 1 a 6
+                band = multiband_raster.read(i)  # Leer banda individualmente
+                dst.write(band, indexes=i)  # Escribir banda individualmente
 
     return output_path
 
