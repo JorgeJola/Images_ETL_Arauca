@@ -16,9 +16,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    height: 80vh; /* Reduced height to move up */
-    padding: 20px;
+    justify-content: flex-start; /* Cambié a 'flex-start' para alinearlo desde arriba */
+    height: 100vh;
+    padding-top: 50px; /* Añadí un padding-top para mover los botones hacia abajo */
     box-sizing: border-box;
   }
 
@@ -45,7 +45,8 @@
     font-weight: bold;
   }
 
-  input[type="file"] {
+  input[type="file"],
+  select {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
@@ -91,16 +92,27 @@
 {% block content %}
 {{ super() }}
 <div class="container">
-    <h1>Raster Classification</h1>
+    <h1>Raster Extraction, Transform and Load (ETL)</h1>
     {% if success %}
         <div class="success-message">
-            <p>Classification completed successfully!</p>
+            <p>ETL completed successfully!</p>
             <a href="{{ url_for('download_file', filename=shapefile) }}" style="color: #007bff;">Download Classified Shapefile</a>
         </div>
     {% else %}
     <form action="{{ url_for('main.image_etl') }}" method="post" enctype="multipart/form-data">
         <label for="raster">Upload Raster File:</label>
         <input type="file" name="raster" id="raster" required>
+        
+        <label for="municipality">Select Municipality:</label>
+        <select id="municipality" name="municipality">
+            <option value="Arauca">Arauca</option>
+            <option value="Arauquita">Arauquita</option>
+            <option value="Cravo Norte">Cravo Norte</option>
+            <option value="Fortul">Fortul</option>
+            <option value="Puerto Rondon">Puerto Rondon</option>
+            <option value="Saravena">Saravena</option>
+            <option value="Tame">Tame</option>
+        </select>
         
         <button type="submit">Process</button>
     </form>
