@@ -15,7 +15,6 @@ from rasterio.mask import mask
 import joblib
 import zipfile
 import folium
-import psutil
 
 main = Blueprint('main', __name__)
 
@@ -52,10 +51,6 @@ def image_classification():
         
     return render_template('image_classification.html', success=False)
 
-def monitor_memory():
-    process = psutil.Process()
-    mem_info = process.memory_info()
-    print(f"Memory usage: {mem_info.rss / 1e6} MB")
 
 def process_raster(input_path, municipality):
     output_path = os.path.join(RESULT_FOLDER, f"Cleaned_Raster_{municipality}.tif")
@@ -69,7 +64,6 @@ def process_raster(input_path, municipality):
             for i in range(1, 7):  # Procesar bandas 1 a 6
                 band = multiband_raster.read(i)  # Leer banda individualmente
                 dst.write(band, indexes=i)  # Escribir banda individualmente
-                monitor_memory()
 
     return output_path
 
