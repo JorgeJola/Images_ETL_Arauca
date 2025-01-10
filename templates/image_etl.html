@@ -17,7 +17,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 80vh; /* Reduced height to move up */
     padding: 20px;
     box-sizing: border-box;
   }
@@ -45,8 +45,7 @@
     font-weight: bold;
   }
 
-  input[type="file"],
-  select {
+  input[type="file"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
@@ -99,20 +98,9 @@
             <a href="{{ url_for('download_file', filename=shapefile) }}" style="color: #007bff;">Download Classified Shapefile</a>
         </div>
     {% else %}
-    <form action="{{ url_for('main.image_classification') }}" method="post" enctype="multipart/form-data">
+    <form action="{{ url_for('main.image_etl') }}" method="post" enctype="multipart/form-data">
         <label for="raster">Upload Raster File:</label>
         <input type="file" name="raster" id="raster" required>
-        
-        <label for="municipality">Select Municipality:</label>
-        <select id="municipality" name="municipality">
-            <option value="Arauca">Arauca</option>
-            <option value="Arauquita">Arauquita</option>
-            <option value="Cravo Norte">Cravo Norte</option>
-            <option value="Fortul">Fortul</option>
-            <option value="Puerto Rondon">Puerto Rondon</option>
-            <option value="Saravena">Saravena</option>
-            <option value="Tame">Tame</option>
-        </select>
         
         <button type="submit">Process</button>
     </form>

@@ -12,7 +12,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
 @main.route('/', methods=["GET", "POST"])
-def image_classification():
+def image_etl():
     if request.method == "POST":
         if 'raster' not in request.files:
             flash("No file part")
@@ -32,7 +32,7 @@ def image_classification():
             process_raster_path = process_raster(raster_path, municipality)
             return redirect(url_for('main.download_file', filename=os.path.basename(process_raster_path)))
         
-    return render_template('image_classification.html', success=False)
+    return render_template('image_etl.html', success=False)
 
 def process_raster(input_path, municipality):
     output_path = os.path.join(RESULT_FOLDER, f"Cleaned_Raster_{municipality}.tif")
